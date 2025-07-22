@@ -17,14 +17,13 @@ jobs:
         run: |
           echo "${{ secrets.GCP_SA_KEY_BASE64 }}" | base64 --decode > $HOME/gcp-key.json
 
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          service_account_key: ${{ steps.decode-sa-key.outputs.key_file }}
-          project_id: your-gcp-project-id
+      - name: Authenticate with GCP
+        run: gcloud auth activate-service-account --key-file=$HOME/gcp-key.json
+
+      - name: Set GCP project
+        run: gcloud config set project data-engineering-prep-466112
 
       - name: Copy files to GCS bucket
-        run: |
-          gsutil -m rsync -r ./dags gs://your-gcs-bucket-name/
+        run: gsutil -m rsync -r ./dags gs://gcp-workflow-dags-df/
 
 

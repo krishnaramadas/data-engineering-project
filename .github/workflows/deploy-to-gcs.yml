@@ -1,0 +1,24 @@
+name: Deploy to GCS
+
+on:
+  push:
+    branches:
+      - main   # or your default branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: data-engineering-prep-466112
+
+      - name: Sync entire repo to GCS bucket
+        run: |
+          gsutil -m rsync -r ./ gs://gcp-workflow-dags-df/

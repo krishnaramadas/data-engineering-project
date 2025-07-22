@@ -23,7 +23,24 @@ jobs:
       - name: Set GCP project
         run: gcloud config set project data-engineering-prep-466112
 
-      - name: Copy files to GCS bucket
-        run: gsutil -m rsync -r ./ gs://gcp-workflow-dags-df/
+      - name: Install yq (YAML parser)
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
+      - name: Read paths to deploy from script_execution_order.yaml
+        id: get_paths
+        run: |
+          paths=$(yq e '.paths_to_deploy[]' script_execution_order.yaml | paste -sd ' ')
+          echo "paths=$paths" >> $GITHUB_OUTPUT
+
+      - name: Sync specified paths to GCS bucket
+        run: |
+          for path in ${{ steps.get_paths.outputs.paths }}
+          do
+            echo "Syncing $path to gs://gcp-workflow-dags-df/$path"
+            gsutil -m rsync -r "$path" "gs://gcp-workflow-dags-df/$path"
+          done
+
 
 

@@ -1,0 +1,8 @@
+paths_to_deploy:
+  - dags/
+  - dataflow/
+  - sql/
+  - scripts/
+  - tests/
+  - config/
+  - docs/
